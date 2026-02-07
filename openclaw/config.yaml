@@ -1,0 +1,31 @@
+name: OpenClaw
+slug: openclaw
+version: "0.1.3"
+description: "Run OpenClaw Gateway locally inside Home Assistant OS (exposes OpenAI-compatible /v1/chat/completions for Assist)."
+url: "https://github.com/sascha005/homeassistant-openclaw"
+arch:
+  - amd64
+init: false
+startup: services
+boot: auto
+hassio_api: true
+homeassistant_api: true
+host_network: false
+ports:
+  18789/tcp: 18789
+ports_description:
+  18789/tcp: "OpenClaw Gateway (WS + HTTP). Use internally; do not expose externally."
+options:
+  port: 18789
+  auth_token: "CHANGE_ME"
+  agent_id: "main"
+  enable_control_ui: true
+schema:
+  port: int(1024,65535)
+  auth_token: str
+  agent_id: str
+  enable_control_ui: bool
+ingress: true
+ingress_port: 18789
+panel_icon: mdi:robot
+panel_title: OpenClaw

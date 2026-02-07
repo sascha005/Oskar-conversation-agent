@@ -1,0 +1,10 @@
+{
+  "domain": "openclaw_conversation",
+  "name": "OpenClaw Conversation Agent",
+  "version": "0.2.0",
+  "documentation": "https://github.com/sascha005/homeassistant-openclaw",
+  "requirements": [],
+  "codeowners": [],
+  "config_flow": true,
+  "iot_class": "local_push"
+}
