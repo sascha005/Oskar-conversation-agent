@@ -22,32 +22,59 @@ def _set_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
 
 def _register_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
     from homeassistant.components import conversation
+    import inspect
 
     if not hasattr(conversation, "async_register_agent"):
         return
 
+    fn = conversation.async_register_agent
+    params = inspect.signature(fn).parameters
+    kwargs = {}
+
+    if "hass" in params:
+        kwargs["hass"] = hass
+    if "entry" in params:
+        kwargs["entry"] = entry
+    if "agent" in params:
+        kwargs["agent"] = agent
+    if "agent_id" in params:
+        kwargs["agent_id"] = entry.entry_id
+    if "name" in params:
+        kwargs["name"] = entry.title or "OpenClaw"
+    if "supported_languages" in params:
+        kwargs["supported_languages"] = None
+    if "language" in params:
+        kwargs["language"] = None
+
     try:
-        if conversation.async_register_agent.__code__.co_argcount >= 3:
-            conversation.async_register_agent(hass, entry, agent)
-        else:
-            conversation.async_register_agent(hass, agent)
+        fn(**kwargs)
     except TypeError:
-        conversation.async_register_agent(hass, entry, agent)
+        # Best-effort fallback
+        fn(hass, entry, agent)
 
 
 def _unregister_agent(hass: HomeAssistant, entry: ConfigEntry) -> None:
     from homeassistant.components import conversation
+    import inspect
 
     if not hasattr(conversation, "async_unregister_agent"):
         return
 
+    fn = conversation.async_unregister_agent
+    params = inspect.signature(fn).parameters
+    kwargs = {}
+
+    if "hass" in params:
+        kwargs["hass"] = hass
+    if "entry" in params:
+        kwargs["entry"] = entry
+    if "agent_id" in params:
+        kwargs["agent_id"] = entry.entry_id
+
     try:
-        if conversation.async_unregister_agent.__code__.co_argcount >= 2:
-            conversation.async_unregister_agent(hass, entry)
-        else:
-            conversation.async_unregister_agent(hass)
+        fn(**kwargs)
     except TypeError:
-        conversation.async_unregister_agent(hass, entry)
+        fn(hass, entry)
 
 
 def _get_agent(hass: HomeAssistant, entry: ConfigEntry):
