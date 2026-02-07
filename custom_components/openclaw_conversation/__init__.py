@@ -23,12 +23,16 @@ def _set_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
 def _get_agent(hass: HomeAssistant, entry: ConfigEntry):
     from homeassistant.components import conversation
 
+    # Newer HA expects agent_id (string), not ConfigEntry.
     try:
         if conversation.async_get_agent.__code__.co_argcount >= 2:
-            return conversation.async_get_agent(hass, entry)
+            try:
+                return conversation.async_get_agent(hass, entry.entry_id)
+            except TypeError:
+                return conversation.async_get_agent(hass, entry)
         return conversation.async_get_agent(hass)
     except TypeError:
-        return conversation.async_get_agent(hass, entry)
+        return conversation.async_get_agent(hass, entry.entry_id)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
