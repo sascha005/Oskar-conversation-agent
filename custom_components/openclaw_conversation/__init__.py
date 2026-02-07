@@ -20,6 +20,36 @@ def _set_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
         conversation.async_set_agent(hass, entry, agent)
 
 
+def _register_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
+    from homeassistant.components import conversation
+
+    if not hasattr(conversation, "async_register_agent"):
+        return
+
+    try:
+        if conversation.async_register_agent.__code__.co_argcount >= 3:
+            conversation.async_register_agent(hass, entry, agent)
+        else:
+            conversation.async_register_agent(hass, agent)
+    except TypeError:
+        conversation.async_register_agent(hass, entry, agent)
+
+
+def _unregister_agent(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    from homeassistant.components import conversation
+
+    if not hasattr(conversation, "async_unregister_agent"):
+        return
+
+    try:
+        if conversation.async_unregister_agent.__code__.co_argcount >= 2:
+            conversation.async_unregister_agent(hass, entry)
+        else:
+            conversation.async_unregister_agent(hass)
+    except TypeError:
+        conversation.async_unregister_agent(hass, entry)
+
+
 def _get_agent(hass: HomeAssistant, entry: ConfigEntry):
     from homeassistant.components import conversation
 
@@ -39,6 +69,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     agent = OpenClawConversationAgent(hass, entry)
     entry.runtime_data = agent
 
+    _register_agent(hass, entry, agent)
     _set_agent(hass, entry, agent)
 
     return True
@@ -49,5 +80,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     current = _get_agent(hass, entry)
     if current is entry.runtime_data:
         _set_agent(hass, entry, None)
+
+    _unregister_agent(hass, entry)
 
     return True
