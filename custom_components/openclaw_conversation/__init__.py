@@ -38,7 +38,7 @@ def _register_agent(hass: HomeAssistant, entry: ConfigEntry, agent) -> None:
     if "agent" in params:
         kwargs["agent"] = agent
     if "agent_id" in params:
-        kwargs["agent_id"] = entry.entry_id
+        kwargs["agent_id"] = DOMAIN
     if "name" in params:
         kwargs["name"] = entry.title or "OpenClaw"
     if "supported_languages" in params:
@@ -69,7 +69,7 @@ def _unregister_agent(hass: HomeAssistant, entry: ConfigEntry) -> None:
     if "entry" in params:
         kwargs["entry"] = entry
     if "agent_id" in params:
-        kwargs["agent_id"] = entry.entry_id
+        kwargs["agent_id"] = DOMAIN
 
     try:
         fn(**kwargs)
@@ -84,12 +84,12 @@ def _get_agent(hass: HomeAssistant, entry: ConfigEntry):
     try:
         if conversation.async_get_agent.__code__.co_argcount >= 2:
             try:
-                return conversation.async_get_agent(hass, entry.entry_id)
+                return conversation.async_get_agent(hass, DOMAIN)
             except TypeError:
                 return conversation.async_get_agent(hass, entry)
         return conversation.async_get_agent(hass)
     except TypeError:
-        return conversation.async_get_agent(hass, entry.entry_id)
+        return conversation.async_get_agent(hass, DOMAIN)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
